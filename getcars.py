@@ -252,7 +252,7 @@ def retrieve_results(car_urls):
         if tree.xpath("//div[@class='technical-headers'][contains(., 'Body Style')]"):
             car_body = tree.xpath("//div[@class='technical-headers'][contains(., 'Body Style')]/following-sibling::div/text()")
         else:
-            car_body - ['N/A']
+            car_body = ['N/A']
 
         if tree.xpath("//div[@class='technical-headers'][contains(., 'CO2 Emission')]"):
             car_co2 = tree.xpath(
