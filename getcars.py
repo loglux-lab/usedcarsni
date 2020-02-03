@@ -136,7 +136,7 @@ def make_research():
 
 
 def table_title(file_name):
-    #    global file_name
+    # global file_name
     file_name = file_name + '.csv'
     f = open(file_name, 'tw', encoding='utf-8')
     f.write(
@@ -358,29 +358,30 @@ def retrieve_results(car_urls):
     print(f'There are {link_count} cars.')
 
 
-if len(argv) > 1:
-    # read req.textif req.text exist and not empty
-    try:
-        file = open('req.txt')
-    except IOError as e:
-        print("Exeption")
-        favorites()
+if __name__ == "__main__":
+    if len(argv) > 1:
+        # read req.textif req.text exist and not empty
+        try:
+            file = open('req.txt')
+        except IOError as e:
+            print("You don't have req.txt file. Reading your favorites list from your Account")
+            favorites()
+        else:
+            with file:
+                print("Read the file")
+                fav_url = file.read()
+                script, file_name = argv
+                # Function start reseach
+                table_title(file_name)
+                file_name = file_name + '.csv'
+                print("Make a research")
+                make_research()
+                if not fav_url:
+                    print("There is no url in req.txt file")
+                    pass
+    # That has a Function to read list
     else:
-        with file:
-            print("Read the file")
-            fav_url = file.read()
-            script, file_name = argv
-            # Function start reseach
-            table_title(file_name)
-            file_name = file_name + '.csv'
-            print("Make a research")
-            make_research()
-            if not fav_url:
-                print("There is no url in req.txt file")
-                pass
-# That has a Function to read list
-else:
-    file_name = 'favorites'
-    table_title(file_name)
-    file_name = file_name + '.csv'
-    favorites()
+        file_name = 'favorites'
+        table_title(file_name)
+        file_name = file_name + '.csv'
+        favorites()
