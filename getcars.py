@@ -161,9 +161,6 @@ def table_title(file_name):
     f.close()
 
 
-#    return(file_name)
-
-
 def favorites():
     global file_name
     print("Get Favorites")
@@ -222,12 +219,14 @@ def retrieve_results(car_urls):
         car_location = tree.xpath(
             "//div[@class='technical-headers'][contains(., 'Location')]/following-sibling::div/text()")
         if tree.xpath("//div[@class='technical-headers'][contains(., 'Colour')]"):
-            car_colour = tree.xpath("//div[@class='technical-headers'][contains(., 'Colour')]/following-sibling::div/text()")
+            car_colour = tree.xpath("//div[@class='technical-headers'][contains(., "
+                                    "'Colour')]/following-sibling::div/text()")
         else:
             car_colour = ['N/A']
 
         if tree.xpath("//div[@class='technical-headers'][contains(., 'Engine Size')]"):
-            car_engine = tree.xpath("//div[@class='technical-headers'][contains(., 'Engine Size')]/following-sibling::div/text()")
+            car_engine = tree.xpath("//div[@class='technical-headers'][contains(., 'Engine "
+                                    "Size')]/following-sibling::div/text()")
         else:
             car_engine = ['N/A']
 
@@ -250,7 +249,8 @@ def retrieve_results(car_urls):
             car_doors = ['N/A']
 
         if tree.xpath("//div[@class='technical-headers'][contains(., 'Body Style')]"):
-            car_body = tree.xpath("//div[@class='technical-headers'][contains(., 'Body Style')]/following-sibling::div/text()")
+            car_body = tree.xpath("//div[@class='technical-headers'][contains(., 'Body "
+                                  "Style')]/following-sibling::div/text()")
         else:
             car_body = ['N/A']
 
@@ -287,6 +287,7 @@ def retrieve_results(car_urls):
             urban = tree.xpath(
                 "//td[@role='rowheader'][contains(text(), 'Fuel Consumption - Urban')]/following-sibling::td/text()")
             urban_mpg = []
+            ltrkm = ''
             for elem in urban:
                 elem = elem.strip()
                 mls = elem.replace(' mpg', '')
