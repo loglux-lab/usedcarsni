@@ -13,10 +13,9 @@ import keyring
 import getpass
 
 
-def get_favs():
-    global car_urls
-    global session
-    # Credentials
+def web_auth():
+    global user_name
+    global user_password
     user_name = keyring.get_password('UsedCarsNI', "username")
     if not user_name:
         # user_name = 'abc'
@@ -37,6 +36,12 @@ def get_favs():
 
     user_password = keyring.get_password('UsedCarsNI', "password")
 
+
+def get_favs():
+    global car_urls
+    global session
+    # Credentials
+    web_auth()
     # Login page
     log_url = "https://www.usedcarsni.com/login_page.php"
     # Index page
@@ -136,7 +141,7 @@ def make_research():
 
 
 def table_title(file_name):
-    # global file_name
+    #global file_name
     file_name = file_name + '.csv'
     f = open(file_name, 'tw', encoding='utf-8')
     f.write(
@@ -168,6 +173,7 @@ def favorites():
     print(file_name)
     print("Retrieve Results")
     retrieve_results(car_urls)
+
 
 
 def retrieve_results(car_urls):
@@ -356,7 +362,6 @@ def retrieve_results(car_urls):
             wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
             wr.writerow(car_specs)
     print(f'There are {link_count} cars.')
-
 
 if __name__ == "__main__":
     if len(argv) > 1:
