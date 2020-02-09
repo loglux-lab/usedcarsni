@@ -41,7 +41,6 @@ def web_auth():
 
     user_password = keyring.get_password('UsedCarsNI', "password")
 
-
 def get_favs():
     global car_urls
     global session
@@ -81,7 +80,6 @@ def get_favs():
     for e in links:
         car_urls.append(e)
 
-
 def make_research():
     # global page_title
     global tree
@@ -94,56 +92,60 @@ def make_research():
     favs = r.text
     tree = html.fromstring(favs)
     # find a hrefs that contains text 'Next'. It's a link to  a new page
-    ext = tree.xpath("//li/a[contains(text(), 'Next')]")
-    # extaact a link to the next page
-    ref = tree.xpath("//li/a[contains(text(), 'Next')]/@href")
-    #   ref = ref[0]
-    print(fav_url)
-    print(1)
-    # create a list of links and add 1st link here
-    ref_links = [fav_url]
-
-    def getpagenew(ref):
-        global car_page
-        global tree
-        #        global new_url
-        # takes a link to the next page
-        ref = ref[0]
-        #        print(ref)
-        new_url = 'http://www.usedcarsni.com' + ref
-        ref_links.append(new_url)
-        #        print("Link to")
-        print(new_url)
-        r = session.get(new_url)
-        #    response = requests.get(new_url)
-        car_page = r.text
-        tree = html.fromstring(car_page)
-
-    getpagenew(ref)
-    num = 1
-    while tree.xpath("//li/a[contains(text(), 'Next')]"):
-        # numbers and print only for debug purposes
-        num += 1
-        print(num)
-        #    print(new_url)
+    #ext = tree.xpath("//li/a[contains(text(), 'Next')]")
+    if tree.xpath("//li/a[contains(text(), 'Next')]"):
+        # extaact a link to the next page
         ref = tree.xpath("//li/a[contains(text(), 'Next')]/@href")
-        getpagenew(ref)
-    else:
-        pass
-    # debug. checking the result
-    print("Length of the List")
-    print(len(ref_links))
-    # print(ref_links)
+        print(fav_url)
+        print(1)
+        # create a list of links and add 1st link here
+        ref_links = [fav_url]
 
-    for urls in ref_links:
-        print(urls)
-        r = session.get(urls)
-        cars = r.text
-        tree = html.fromstring(cars)
+        def getpagenew(ref):
+            global car_page
+            global tree
+            #        global new_url
+            # takes a link to the next page
+            ref = ref[0]
+            #        print(ref)
+            new_url = 'http://www.usedcarsni.com' + ref
+            ref_links.append(new_url)
+            #        print("Link to")
+            print(new_url)
+            r = session.get(new_url)
+            #    response = requests.get(new_url)
+            car_page = r.text
+            tree = html.fromstring(car_page)
+
+        getpagenew(ref)
+        num = 1
+        while tree.xpath("//li/a[contains(text(), 'Next')]"):
+            # numbers and print only for debug purposes
+            num += 1
+            print(num)
+            #    print(new_url)
+            ref = tree.xpath("//li/a[contains(text(), 'Next')]/@href")
+            getpagenew(ref)
+        else:
+            pass
+        # debug. checking the result
+        print("Length of the List")
+        print(len(ref_links))
+        # print(ref_links)
+
+
+        for urls in ref_links:
+            print(urls)
+            r = session.get(urls)
+            cars = r.text
+            tree = html.fromstring(cars)
+            car_urls = tree.xpath("//div[@class='car-caption hidden-md']/a/@href ")
+            # print(car_urls)
+            retrieve_results(car_urls)
+    else:
         car_urls = tree.xpath("//div[@class='car-caption hidden-md']/a/@href ")
         # print(car_urls)
         retrieve_results(car_urls)
-
 
 def table_title():
     global file_name
@@ -171,23 +173,20 @@ def table_title():
     f.close()
 
 def excel_title():
-    global file_name, wb
-    now = datetime.now().date()
-    now = str(now)
-    print(now)
+    global file_name, wb, worksheet
     file_name = file_name + '.xlsx'
     from openpyxl import load_workbook
     try:
         wb = load_workbook(file_name)
         sheets = wb.sheetnames
-        if now in sheets:
-            now = now + "-1"
+#        if now in sheets:
+            #now = now + "-1"
     except:
         wb = openpyxl.Workbook()
 
-    wb.create_sheet(title = now, index = 0)
+    wb.create_sheet(title = worksheet, index = 0)
     global sheet
-    sheet = wb[now]
+    sheet = wb[worksheet]
     headers = [
         'Model',
         'Year',
@@ -235,6 +234,7 @@ def csvdata():
 
 #j = 1
 def exceldata():
+#    global sheet
 #    global j
 #    for car_spec in car_specs:
 #        i = car_specs.index(car_spec)
@@ -426,7 +426,7 @@ def retrieve_results(car_urls):
                      *car_acceleration,
                      *car_price]
         car_specs.append(car_url)
-        print(car_specs)
+#        print(car_specs)
 #        global j
 #        j = j + 1
  #       csvdata()
@@ -446,9 +446,12 @@ if __name__ == "__main__":
             with file:
                 print("Read the file")
                 fav_url = file.read()
-                script, file_name = argv
+                script, cmdarg = argv
+                worksheet = cmdarg
+                file_name = "usedcarsni"
                 # Function start reseach
-                table_title()
+                #table_title()
+                excel_title()
                 print("Make a research")
                 make_research()
                 if not fav_url:
@@ -457,6 +460,9 @@ if __name__ == "__main__":
     # That has a Function to read list
     else:
         file_name = 'favorites'
+        now = datetime.now().date()
+        worksheet = str(now)
+#        print(now)
         #table_title()
         excel_title()
         favorites()
