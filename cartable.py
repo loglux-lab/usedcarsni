@@ -176,7 +176,12 @@ def excel_title():
     now = str(now)
     print(now)
     file_name = file_name + '.xlsx'
-    wb = openpyxl.Workbook()
+    from openpyxl import load_workbook
+    try:
+        wb = load_workbook(file_name)
+    except:
+        wb = openpyxl.Workbook()
+
     wb.create_sheet(title = now, index = 0)
     sheet = wb[now]
     headers = [
