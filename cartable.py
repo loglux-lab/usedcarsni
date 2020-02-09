@@ -171,7 +171,7 @@ def table_title():
     f.close()
 
 def excel_title():
-    global file_name
+    global file_name, wb
     now = datetime.now().date()
     now = str(now)
     print(now)
@@ -183,6 +183,7 @@ def excel_title():
         wb = openpyxl.Workbook()
 
     wb.create_sheet(title = now, index = 0)
+    global sheet
     sheet = wb[now]
     headers = [
         'Model',
@@ -227,7 +228,16 @@ def csvdata():
     with open(file_name, 'a', newline='') as myfile:
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(car_specs)
+j = 1
+def exceldata():
+    global j
+    for car_spec in car_specs:
+        i = car_specs.index(car_spec)
+        i = i + 1
 
+        cell = sheet.cell(row = j, column = i)
+        cell.value = car_spec
+        wb.save(file_name)
 
 def retrieve_results(car_urls):
     # create or trunckate file with column title at the fist line
@@ -410,7 +420,11 @@ def retrieve_results(car_urls):
                      *car_acceleration,
                      *car_price]
         car_specs.append(car_url)
-        csvdata()
+        print(car_specs)
+        global j
+        j = j + 1
+ #       csvdata()
+        exceldata()
     print(f'There are {link_count} cars.')
 
 
@@ -439,4 +453,4 @@ if __name__ == "__main__":
         file_name = 'favorites'
         #table_title()
         excel_title()
-  #      favorites()
+        favorites()
