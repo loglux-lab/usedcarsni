@@ -179,6 +179,9 @@ def excel_title():
     from openpyxl import load_workbook
     try:
         wb = load_workbook(file_name)
+        sheets = wb.sheetnames
+        if now in sheets:
+            now = now + "-1"
     except:
         wb = openpyxl.Workbook()
 
@@ -206,12 +209,18 @@ def excel_title():
         'Price',
         'Link']
 
-    for header in headers:
-        i = headers.index(header)
-        i = i + 1
-        cell = sheet.cell(row = 1, column = i)
-        cell.value = header
-        wb.save(file_name)
+
+    sheet.append(headers)
+#    for header in headers:
+#        i = headers.index(header)
+#        i = i + 1
+#        cell = sheet.cell(row = 1, column = i)
+#        cell.value = header
+    wb.save(file_name)
+
+# add an entire row:
+# sheet.append(['Первый', 'Второй', 'Третий'])
+
 
 def favorites():
 #    global file_name
@@ -228,15 +237,17 @@ def csvdata():
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(car_specs)
 
-j = 1
+#j = 1
 def exceldata():
-    global j
-    for car_spec in car_specs:
-        i = car_specs.index(car_spec)
-        i = i + 1
-        cell = sheet.cell(row = j, column = i)
-        cell.value = car_spec
-        wb.save(file_name)
+#    global j
+#    for car_spec in car_specs:
+#        i = car_specs.index(car_spec)
+#        i = i + 1
+#        cell = sheet.cell(row = j, column = i)
+#        cell.value = car_spec
+#        wb.save(file_name)
+    sheet.append(car_specs)
+    wb.save(file_name)
 
 def retrieve_results(car_urls):
     # create or trunckate file with column title at the fist line
@@ -420,8 +431,8 @@ def retrieve_results(car_urls):
                      *car_price]
         car_specs.append(car_url)
         print(car_specs)
-        global j
-        j = j + 1
+#        global j
+#        j = j + 1
  #       csvdata()
         exceldata()
     print(f'There are {link_count} cars.')
