@@ -218,10 +218,6 @@ def excel_title():
 #        cell.value = header
     wb.save(file_name)
 
-# add an entire row:
-# sheet.append(['Первый', 'Второй', 'Третий'])
-
-
 def favorites():
 #    global file_name
     print("Get Favorites")
