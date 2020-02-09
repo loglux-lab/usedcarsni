@@ -13,6 +13,8 @@ import keyring
 import getpass
 # Excel
 import openpyxl
+# date
+from datetime import datetime
 
 global file_name
 
@@ -170,10 +172,13 @@ def table_title():
 
 def excel_title():
     global file_name
+    now = datetime.now().date()
+    now = str(now)
+    print(now)
     file_name = file_name + '.xlsx'
     wb = openpyxl.Workbook()
-    wb.create_sheet(title = 'List', index = 0)
-    sheet = wb['List']
+    wb.create_sheet(title = now, index = 0)
+    sheet = wb[now]
     headers = [
         'Model',
         'Year',
