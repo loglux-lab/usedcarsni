@@ -194,27 +194,13 @@ def excel_title():
         'Acceleration (0-62mph)',
         'Price',
         'Link']
-    #col = len(headers)
-#    i = 0
-#    header: str
-#    while headers:
+
     for header in headers:
         i = headers.index(header)
-#        i = headers[header]
-        i = i +1
-        print(i)
-
-#        col_title = 'A' + str(i)
-#        col_title.append(col_title)
+        i = i + 1
         cell = sheet.cell(row = 1, column = i)
         cell.value = header
         wb.save(file_name)
-#    all_titles = dict(zip(col_title, headers))
-
-#    for item in all_titles:
-#        cell = sheet(row = 1, column = allt)
-#        cell.value =
-#    wb.save(file_name)
 
 def favorites():
 #    global file_name
