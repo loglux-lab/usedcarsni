@@ -174,33 +174,41 @@ def excel_title():
     wb = openpyxl.Workbook()
     wb.create_sheet(title = 'List', index = 0)
     sheet = wb['List']
-    headers = (
-        'Model,'
-        'Year,'
-        'Brand,'
-        'Mileage,'
-        'Location,'
-        'Colour,'
-        'Engine Size,'
-        'Fuel type,'
-        'Gear box,'
-        'Doors,'
-        'Style,'
-        'Emissions,'
-        'Standard Tax,'
-        'Insurance rate,'
-        'Fuel consumption - Urban (mpg),'
-        'Litres per KM,'
-        'Acceleration (0-62mph),'
-        'Price,Link')
+    headers = [
+        'Model',
+        'Year',
+        'Brand',
+        'Mileage',
+        'Location',
+        'Colour',
+        'Engine Size',
+        'Fuel type',
+        'Gear box',
+        'Doors',
+        'Style',
+        'Emissions',
+        'Standard Tax',
+        'Insurance rate',
+        'Fuel consumption - Urban (mpg)',
+        'Litres per KM',
+        'Acceleration (0-62mph)',
+        'Price',
+        'Link']
     #col = len(headers)
+#    i = 0
+#    header: str
+#    while headers:
     for header in headers:
+        i = headers.index(header)
+#        i = headers[header]
+        i = i +1
+        print(i)
 
 #        col_title = 'A' + str(i)
 #        col_title.append(col_title)
-#        cell = sheet.cell(row = 1, column = i)
-#        cell.value = header
-#    wb.save(file_name)
+        cell = sheet.cell(row = 1, column = i)
+        cell.value = header
+        wb.save(file_name)
 #    all_titles = dict(zip(col_title, headers))
 
 #    for item in all_titles:
@@ -435,4 +443,4 @@ if __name__ == "__main__":
         file_name = 'favorites'
         #table_title()
         excel_title()
-        favorites()
+  #      favorites()
