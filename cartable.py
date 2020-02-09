@@ -223,18 +223,17 @@ def favorites():
 
 
 def csvdata():
-#    global file_name
     # save data to csv file
     with open(file_name, 'a', newline='') as myfile:
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(car_specs)
+
 j = 1
 def exceldata():
     global j
     for car_spec in car_specs:
         i = car_specs.index(car_spec)
         i = i + 1
-
         cell = sheet.cell(row = j, column = i)
         cell.value = car_spec
         wb.save(file_name)
