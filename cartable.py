@@ -376,6 +376,7 @@ def retrieve_results(car_urls):
                 urban_mpg.append(elem)
         else:
             urban_mpg = ['N/A']
+            ltrkm = ['N/A']
         # clean up data and copy to a new list
         if tree.xpath("//td[@role='rowheader'][contains(text(), 'Acceleration (0-62mph)')]"):
             acceleration = tree.xpath(
