@@ -4,7 +4,7 @@ from lxml import html
 import requests
 from sys import argv
 # csv
-import csv
+# import csv
 # RegEx
 import re
 # Keyring
@@ -147,6 +147,7 @@ def make_research():
         # print(car_urls)
         retrieve_results(car_urls)
 
+"""
 def table_title():
     global file_name
     file_name = file_name + '.csv'
@@ -171,10 +172,10 @@ def table_title():
         'Acceleration (0-62mph),'
         'Price,Link\n')
     f.close()
-
+"""
 def excel_title():
     global file_name, wb, worksheet
-    file_name = file_name + '.xlsx'
+    file_name = 'data/' + file_name + '.xlsx'
     from openpyxl import load_workbook
     try:
         wb = load_workbook(file_name)
@@ -226,11 +227,11 @@ def favorites():
     retrieve_results(car_urls)
 
 
-def csvdata():
+#def csvdata():
     # save data to csv file
-    with open(file_name, 'a', newline='') as myfile:
-        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-        wr.writerow(car_specs)
+#    with open(file_name, 'a', newline='') as myfile:
+#        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+#        wr.writerow(car_specs)
 
 #j = 1
 def exceldata():
