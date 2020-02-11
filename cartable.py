@@ -1,58 +1,29 @@
+from logweb import web_auth
 from lxml import html
-# from lxml import etree
 # import urllib
 import requests
 from sys import argv
-# csv
-# import csv
 # RegEx
 import re
-# Keyring
-import keyring
-# Hide password from the screen
-import getpass
 # Excel
 import openpyxl
 # date
 from datetime import datetime
 
+
 global file_name
 
-def web_auth():
-    global user_name
-    global user_password
-    user_name = keyring.get_password('UsedCarsNI', "username")
-    if not user_name:
-        # user_name = 'abc'
-        print("Type your username and password here:")
-        user_name = input("Username: ")
-        user_password = 'abc'
-        user_password_second = 'ecb'
-        while user_password != user_password_second:
-            user_password = getpass.getpass("Password: ")
-            user_password_second = getpass.getpass("Repeat Your Password: ")
-            print("You password doesn't match. Please, try again.")
-
-        keyring.set_password('UsedCarsNI', "username", user_name)
-        keyring.set_password('UsedCarsNI', "password", user_password)
-
-    else:
-        pass
-
-    user_password = keyring.get_password('UsedCarsNI', "password")
 
 def get_favs():
     global car_urls
     global session
-    # Credentials
-    web_auth()
+    user_name, user_password = web_auth()
     # Login page
     log_url = "https://www.usedcarsni.com/login_page.php"
     # Index page
-    req_url = "https://www.usedcarsni.com/"
+    #    req_url = "https://www.usedcarsni.com/"
     # Favorites
     fav_url = "https://www.usedcarsni.com/mystocklist.php"
-
     # Login data: username, password and hidden input tag
     #  'attribute name': 'attribute value'
     payload = {
@@ -60,30 +31,24 @@ def get_favs():
         'f2': user_password,
         'someFrm2': '1'
     }
-
-    # global session
-    # session = ''
-    s = requests.Session()
-
     with requests.Session() as session:
-        post = session.post(log_url, data=payload)
-    #    r = session.get(req_url)
+        session.post(log_url, data=payload)
+        # Open Favorites page
+        r = session.get(fav_url)
+        favs = r.text
+        tree = html.fromstring(favs)
+        # Retrive a list of saved links from the page
+        links = tree.xpath("//div[@class='car-caption hidden-md']/a/@href ")
+        # Save links to List
+        car_urls = []
+        for e in links:
+            car_urls.append(e)
 
-    # Open Favorites page
-    r = session.get(fav_url)
-    favs = r.text
-    tree = html.fromstring(favs)
-    # Retrive a list of saved links from the page
-    links = tree.xpath("//div[@class='car-caption hidden-md']/a/@href ")
-    # Save links to List
-    car_urls = []
-    for e in links:
-        car_urls.append(e)
 
 def make_research():
     # global page_title
-    global tree
-    global session
+    global tree, session
+#    global session
     global car_page
     #    global file_name
     #    global ref
@@ -92,7 +57,7 @@ def make_research():
     favs = r.text
     tree = html.fromstring(favs)
     # find a hrefs that contains text 'Next'. It's a link to  a new page
-    #ext = tree.xpath("//li/a[contains(text(), 'Next')]")
+    # ext = tree.xpath("//li/a[contains(text(), 'Next')]")
     if tree.xpath("//li/a[contains(text(), 'Next')]"):
         # extaact a link to the next page
         ref = tree.xpath("//li/a[contains(text(), 'Next')]/@href")
@@ -133,7 +98,6 @@ def make_research():
         print(len(ref_links))
         # print(ref_links)
 
-
         for urls in ref_links:
             print(urls)
             r = session.get(urls)
@@ -147,32 +111,7 @@ def make_research():
         # print(car_urls)
         retrieve_results(car_urls)
 
-"""
-def table_title():
-    global file_name
-    file_name = file_name + '.csv'
-    f = open(file_name, 'tw', encoding='utf-8')
-    f.write(
-        'Model,'
-        'Year,'
-        'Brand,'
-        'Mileage,'
-        'Location,'
-        'Colour,'
-        'Engine Size,'
-        'Fuel type,'
-        'Gear box,'
-        'Doors,'
-        'Style,'
-        'Emissions,'
-        'Standard Tax,'
-        'Insurance rate,'
-        'Fuel consumption - Urban (mpg),'
-        'Litres per KM,'
-        'Acceleration (0-62mph),'
-        'Price,Link\n')
-    f.close()
-"""
+
 def excel_title():
     global file_name, wb, worksheet
     file_name = 'data/' + file_name + '.xlsx'
@@ -180,12 +119,24 @@ def excel_title():
     try:
         wb = load_workbook(file_name)
         sheets = wb.sheetnames
-#        if now in sheets:
-            #now = now + "-1"
+        print(sheets)
+        if worksheet in sheets:
+            sheets.remove_sheet(worksheet)
+        else:
+            pass
+#        print(now)
+#        for i in sheets:
+#            if now in i:
+#                sheets.remove(i_sheet)
+#            else:
+#                pass
+    # now = now + "-1"
     except:
         wb = openpyxl.Workbook()
 
-    wb.create_sheet(title = worksheet, index = 0)
+    print("Another time")
+    print(worksheet)
+    wb.create_sheet(title=worksheet, index=0)
     global sheet
     sheet = wb[worksheet]
     headers = [
@@ -209,42 +160,30 @@ def excel_title():
         'Price',
         'Link']
 
-
     sheet.append(headers)
-#    for header in headers:
-#        i = headers.index(header)
-#        i = i + 1
-#        cell = sheet.cell(row = 1, column = i)
-#        cell.value = header
     wb.save(file_name)
 
+
 def favorites():
-#    global file_name
-    print("Get Favorites")
+    print("Get Favorites From the Account")
     get_favs()
-    print(file_name)
+#    print(file_name)
     print("Retrieve Results")
     retrieve_results(car_urls)
 
 
-#def csvdata():
-    # save data to csv file
-#    with open(file_name, 'a', newline='') as myfile:
-#        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-#        wr.writerow(car_specs)
-
-#j = 1
 def exceldata():
-#    global sheet
-#    global j
-#    for car_spec in car_specs:
-#        i = car_specs.index(car_spec)
-#        i = i + 1
-#        cell = sheet.cell(row = j, column = i)
-#        cell.value = car_spec
-#        wb.save(file_name)
+    #    global sheet
+    #    global j
+    #    for car_spec in car_specs:
+    #        i = car_specs.index(car_spec)
+    #        i = i + 1
+    #        cell = sheet.cell(row = j, column = i)
+    #        cell.value = car_spec
+    #        wb.save(file_name)
     sheet.append(car_specs)
     wb.save(file_name)
+
 
 def retrieve_results(car_urls):
     # create or trunckate file with column title at the fist line
@@ -257,7 +196,7 @@ def retrieve_results(car_urls):
         link_count += 1
         car_url = car_url.replace('#Car-Tail-Url#', '')
         if 'search_type' in car_url:
-            repl = re.search(r'\?[a-zA-Z0-9_=&%]*', car_url).group()
+            repl = re.search(r'\?[a-zA-Z0-9_=&%+]*', car_url).group()
             car_url = car_url.replace(repl, '')
         #    print(car_url)
         else:
@@ -428,10 +367,10 @@ def retrieve_results(car_urls):
                      *car_acceleration,
                      *car_price]
         car_specs.append(car_url)
-#        print(car_specs)
-#        global j
-#        j = j + 1
- #       csvdata()
+        #        print(car_specs)
+        #        global j
+        #        j = j + 1
+        #       csvdata()
         exceldata()
     print(f'There are {link_count} cars.')
 
@@ -452,7 +391,7 @@ if __name__ == "__main__":
                 worksheet = cmdarg
                 file_name = "usedcarsni"
                 # Function start reseach
-                #table_title()
+                # table_title()
                 excel_title()
                 print("Make a research")
                 make_research()
@@ -464,7 +403,7 @@ if __name__ == "__main__":
         file_name = 'favorites'
         now = datetime.now().date()
         worksheet = str(now)
-#        print(now)
-        #table_title()
+        #        print(now)
+        # table_title()
         excel_title()
         favorites()
