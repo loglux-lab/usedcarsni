@@ -118,12 +118,16 @@ def excel_title():
     from openpyxl import load_workbook
     try:
         wb = load_workbook(file_name)
-        sheets = wb.sheetnames
+        sheets = wb.sheetnames # Returns a worksheets by its names
         print(sheets)
-        if worksheet in sheets:
-            sheets.remove_sheet(worksheet)
+        if worksheet in sheets: # check if we have worksheeet in the list
+            wb.remove(wb[worksheet]) # Remove workshseet from this workbook
+            wb.save(file_name) # Save the results
         else:
+            print("The first time today?")
             pass
+
+
 #        print(now)
 #        for i in sheets:
 #            if now in i:
@@ -134,8 +138,8 @@ def excel_title():
     except:
         wb = openpyxl.Workbook()
 
-    print("Another time")
-    print(worksheet)
+#    print("Another time")
+#    print(worksheet)
     wb.create_sheet(title=worksheet, index=0)
     global sheet
     sheet = wb[worksheet]
