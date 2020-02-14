@@ -311,11 +311,14 @@ def retrieve_results(car_urls):
                 elem = elem.strip()
                 mls = elem.replace(' mpg', '')
                 mls = float(mls)
-                ltr = 282.48 / mls
-                ltr = round(ltr)
-                ltr = int(ltr)
-                ltr = str(ltr) + ' l/km'
-                ltrkm = [ltr]
+                if mls > 0:
+                    ltr = 282.48 / mls
+                    ltr = round(ltr)
+                    ltr = int(ltr)
+                    ltr = str(ltr) + ' l/km'
+                    ltrkm = [ltr]
+                else:
+                    ltrkm = ['N/A']
                 assert isinstance(elem, object)
                 urban_mpg.append(elem)
         else:

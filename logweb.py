@@ -22,6 +22,7 @@ def web_auth():
     return user_name, user_password
 
 
+
 if __name__ == "__main__":
     user_name, user_password = web_auth()
     print(user_name)
