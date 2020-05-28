@@ -126,7 +126,6 @@ class Cars:
                 "//div[@class='technical-headers'][contains(., 'Standard Tax')]/following-sibling::div/a/text()")
             self.car_tax = []
             [ self.car_tax.append(x.strip()) for x in self.car_t ]
-            print(self.car_tax)
             if self.car_tax == []:
                 self.car_tax = ['Foo']
 
