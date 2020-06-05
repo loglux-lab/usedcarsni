@@ -6,6 +6,7 @@ import openpyxl
 from lxml import html
 import pandas as pd
 from storage import Storage
+from datetime import date
 import sqlite3
 
 class Cars:
@@ -25,8 +26,36 @@ class Cars:
         self.connect()
 #        cursor.execute('INSERT INTO books (name, author) VALUES (?, ?)', (name, author))
         # WHERE NOT EXISTS(SELECT 1 FROM memos WHERE id = 5 AND text = 'text to insert');
-        self.insert_car =   "INSERT INTO cars (Make, Model, Trim, Year, Price, Mileage, Engine, Fuel, Transmission, Tax, Insurance, MPG, KM, Acceleration, Link, Id)  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  )"
-        #self.car_values = (self.car_catalogue['Trim'], self.car_catalogue['Year'], self.car_catalogue['Price'], self.car_catalogue['Mileage'], self.car_catalogue['Engine'], self.car_catalogue['Fuel'], self.car_catalogue['Transmission'], self.car_catalogue['Tax'], self.car_catalogue['Insurance'], self.car_catalogue['MPG'], self.car_catalogue['KM'], self.car_catalogue['Acceleration'],  self.car_catalogue['Link'], self.car_catalogue['Id'])
+        self.insert_car =   """INSERT INTO cars (
+        Make, 
+        Model, 
+        Trim, 
+        Year, 
+        Price, 
+        Mileage, 
+        Engine, 
+        Fuel, 
+        Transmission, 
+        Tax, 
+        Insurance, 
+        MPG, 
+        KM, 
+        Acceleration, 
+        Link, 
+        Id)  
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
+        );"""
+        self.insert_date = """INSERT INTO price_watch (
+        H_Date,
+        H_Price,
+        Id)
+        VALUES (?, ?, ?);
+         """
+        self.price_select = """SELECT date(H_Date), H_Price, Id 
+        FROM price_watch WHERE Id= ?
+        AND 
+        date(H_date) = (SELECT MAX(date(H_Date)) FROM price_watch)"""
+        self.row_check = """SELECT Price from cars WHERE Id = ?"""
 
 
     def start(self):
@@ -211,19 +240,30 @@ class Cars:
         """ Adding a recored into Database """
         with Storage() as cursor:
             try:
+                cursor.execute(self.insert_date,
+                               (date.today(), self.car_description['Price'], self.car_description['Id']))
                 cursor.execute(self.insert_car, list(self.car_description.values()))
+                #cursor.executescript((self.insert_car + self.insert_date))
                 print(cursor.lastrowid)
             except sqlite3.IntegrityError:
                 """ TODO: Search Results Web results SQLite IntegrityError: UNIQUE constraint failed:"""
                 """ Checkig a previous price and comparsion with a current one """
-                row_check = f"SELECT Price from cars WHERE Id = {self.car_description['Id']}"
+                #row_check = f"SELECT Price from cars WHERE Id = {self.car_description['Id']}"
                 """ How to make a comparison and save a result. """
-                cursor.execute(row_check)
+                #cursor.execute(row_check)
+                #tulpe_id = (self.car_description['Id'],)
+                #print(tulpe_id)
+                cursor.execute(self.row_check, (self.car_description['Id'],))
                 previous_price = cursor.fetchone()
                 print("Old Price: " + ''.join(previous_price))
                 print("Current Price: " + self.car_description['Price'])
                 print("Price difference: " + str(int(''.join(previous_price).replace('£', '')) - int(self.car_description['Price'].replace('£', ''))))
                 """ TODO: create a table for price traking """
+                cursor.execute(self.price_select, (self.car_description['Id'],))
+                result = cursor.fetchall()
+                print(result)
+
+                #cursor.execute(self.insert_date, date.today(), self.car_description['Price'], cursor.lastrowid)
 
         """ Creating a title for saving in csv/excel tables"""
         self.car_columns = list(self.car_catalogue[0].keys())
@@ -350,6 +390,7 @@ class Cars:
         # all rows:
         # pandas.options.display.max_rows
         print(df)
+        print(date.today())
 
     def save_to_db(self):
         ...
