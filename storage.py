@@ -36,6 +36,7 @@ if __name__ == '__main__':
         H_Date text, 
         H_Price real, 
         Id integer,
+        UNIQUE (H_Date, H_Price, Id),
         FOREIGN KEY (Id) REFERENCES cars (Id)
         );"""
         cursor.execute(cars_table)
