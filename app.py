@@ -9,15 +9,9 @@ convertable = "https://www.usedcarsni.com/search_results.php?keywords=&make=0&fu
 convertable_smalleng = "https://www.usedcarsni.com/search_results.php?search_type=1&make=0&fuel_type=1&age_from=0&price_from=0&user_type=0&trans_type=0&age_to=0&price_to=0&mileage_to=0&keywords=&distance_enabled=1&distance_postcode=&body_style=5&eng_size%5B%5D=999&eng_size%5B%5D=1000&eng_size%5B%5D=1200&eng_size%5B%5D=1300&eng_size%5B%5D=1400&eng_size%5B%5D=1500&eng_size%5B%5D=1600"
 
 motor = cars.Cars(all_renault2016)
-# motor.connect()
-# motor.check
-# motor.directory()
 motor.start()
 motor.results()
-#motor.save_to_csv()
-#motor.save_to_json()
 motor.save_to_excel()
-#motor.print_table()
 motor.pd_table()
 
 
