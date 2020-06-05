@@ -51,7 +51,7 @@ class Cars:
         Id)
         VALUES (?, ?, ?);
          """
-        self.price_select = """SELECT date(H_Date), H_Price, Id 
+        self.price_select = """SELECT DISTINCT date(H_Date), H_Price, Id 
         FROM price_watch WHERE Id= ?
         AND 
         date(H_date) = (SELECT MAX(date(H_Date)) FROM price_watch)"""
