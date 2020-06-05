@@ -5,7 +5,8 @@ import json
 import openpyxl
 from lxml import html
 import pandas as pd
-
+from storage import Storage
+import sqlite3
 
 class Cars:
     def __init__(self, url, file_name="cars"):
@@ -13,14 +14,20 @@ class Cars:
             TODO: Create save_to_json method.
         """
         self.url = url
+        self.page_url = url
         self.file_name = "cars"
-        self.base_url = "http://www.usedcarsni.com"
+        self.base_url = "https://www.usedcarsni.com"
         self.page_number = "&pagepc0="
         self.car_catalogue = []
         self.car_columns = []
         self.result = False
         self.session = requests.Session()
         self.connect()
+#        cursor.execute('INSERT INTO books (name, author) VALUES (?, ?)', (name, author))
+        # WHERE NOT EXISTS(SELECT 1 FROM memos WHERE id = 5 AND text = 'text to insert');
+        self.insert_car =   "INSERT INTO cars (Make, Model, Trim, Year, Price, Mileage, Engine, Fuel, Transmission, Tax, Insurance, MPG, KM, Acceleration, Link, Id)  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  )"
+        #self.car_values = (self.car_catalogue['Trim'], self.car_catalogue['Year'], self.car_catalogue['Price'], self.car_catalogue['Mileage'], self.car_catalogue['Engine'], self.car_catalogue['Fuel'], self.car_catalogue['Transmission'], self.car_catalogue['Tax'], self.car_catalogue['Insurance'], self.car_catalogue['MPG'], self.car_catalogue['KM'], self.car_catalogue['Acceleration'],  self.car_catalogue['Link'], self.car_catalogue['Id'])
+
 
     def start(self):
         page_scope = self.check
@@ -64,6 +71,7 @@ class Cars:
                self.tree = Cars(self.page_url).connect()
                print(self.page_url)
                self.parser()
+        #return self.car_url
 
     def parser(self):
         """ Working with an individual page """
@@ -176,21 +184,21 @@ class Cars:
         self.car_id = self.url_info[-1]
         """ Creating a dictionary """
         """ TODO: a separete method or even separate class??? """
-        self.car_description['Name'] = self.car_title[0]
+        #self.car_description['Name'] = self.car_title[0]
         self.car_description['Make'] = self.car_make
         self.car_description['Model'] = self.car_model
         self.car_description['Trim'] = self.car_trim[0]
         self.car_description['Year'] = self.car_year
         self.car_description['Price'] = self.car_price[0]
         self.car_description['Mileage'] = self.car_mileage[0]
-        self.car_description['Location'] = self.car_location[0]
-        self.car_description['Colour'] = self.car_colour[0]
+        #self.car_description['Location'] = self.car_location[0]
+        #self.car_description['Colour'] = self.car_colour[0]
         self.car_description['Engine'] = self.car_engine[0]
         self.car_description['Fuel'] = self.car_fuel[0]
         self.car_description['Transmission'] = self.car_trans[0]
-        self.car_description['Doors'] = self.car_doors[0]
-        self.car_description['Body'] = self.car_body[0]
-        self.car_description['CO2'] = self.car_co2[0]
+        #self.car_description['Doors'] = self.car_doors[0]
+        #self.car_description['Body'] = self.car_body[0]
+        #self.car_description['CO2'] = self.car_co2[0]
         self.car_description['Tax'] = self.car_tax[0]
         self.car_description['Insurance'] = self.car_insurance[0]
         self.car_description['MPG'] = self.urban_mpg
@@ -200,6 +208,23 @@ class Cars:
         self.car_description['Id'] = self.car_id
         """ Adding a dictionary to a big list (declared in __init__) """
         self.car_catalogue.append(self.car_description)
+        """ Adding a recored into Database """
+        with Storage() as cursor:
+            try:
+                cursor.execute(self.insert_car, list(self.car_description.values()))
+                print(cursor.lastrowid)
+            except sqlite3.IntegrityError:
+                """ TODO: Search Results Web results SQLite IntegrityError: UNIQUE constraint failed:"""
+                """ Checkig a previous price and comparsion with a current one """
+                row_check = f"SELECT Price from cars WHERE Id = {self.car_description['Id']}"
+                """ How to make a comparison and save a result. """
+                cursor.execute(row_check)
+                previous_price = cursor.fetchone()
+                print("Old Price: " + ''.join(previous_price))
+                print("Current Price: " + self.car_description['Price'])
+                print("Price difference: " + str(int(''.join(previous_price).replace('£', '')) - int(self.car_description['Price'].replace('£', ''))))
+                """ TODO: create a table for price traking """
+
         """ Creating a title for saving in csv/excel tables"""
         self.car_columns = list(self.car_catalogue[0].keys())
         print(self.car_description)
@@ -325,6 +350,10 @@ class Cars:
         # all rows:
         # pandas.options.display.max_rows
         print(df)
+
+    def save_to_db(self):
+        ...
+
 
 
 # Virtualenv location: /root/.local/share/virtualenvs/oil-TJy-gOFN
