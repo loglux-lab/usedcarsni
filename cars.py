@@ -25,8 +25,6 @@ class Cars:
         self.session = requests.Session()
         self.current_date = date.today()
         self.connect()
-#        cursor.execute('INSERT INTO books (name, author) VALUES (?, ?)', (name, author))
-        # WHERE NOT EXISTS(SELECT 1 FROM memos WHERE id = 5 AND text = 'text to insert');
         self.insert_car =   """INSERT INTO cars (
         Make, 
         Model, 
