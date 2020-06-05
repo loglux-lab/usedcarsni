@@ -23,6 +23,7 @@ class Cars:
         self.car_columns = []
         self.result = False
         self.session = requests.Session()
+        self.current_date = date.today()
         self.connect()
 #        cursor.execute('INSERT INTO books (name, author) VALUES (?, ?)', (name, author))
         # WHERE NOT EXISTS(SELECT 1 FROM memos WHERE id = 5 AND text = 'text to insert');
@@ -241,10 +242,10 @@ class Cars:
         with Storage() as cursor:
             try:
                 cursor.execute(self.insert_date,
-                               (date.today(), self.car_description['Price'], self.car_description['Id']))
+                               (self.current_date, self.car_description['Price'], self.car_description['Id']))
                 cursor.execute(self.insert_car, list(self.car_description.values()))
                 #cursor.executescript((self.insert_car + self.insert_date))
-                print(cursor.lastrowid)
+                #print(cursor.lastrowid)
             except sqlite3.IntegrityError:
                 """ TODO: Search Results Web results SQLite IntegrityError: UNIQUE constraint failed:"""
                 """ Checkig a previous price and comparsion with a current one """
@@ -296,16 +297,17 @@ class Cars:
     def save_to_excel(self):
         """ TODO: Revise this function save_to_excel """
         from openpyxl import load_workbook
+        sheet_date = str(self.current_date)
         full_file_name = self.file_name + '.xlsx'
         try:
             wb = load_workbook(full_file_name)
             sheets = wb.sheetnames  # Returns a worksheets by its names
             print(f"The file has sheets: {sheets}") # Printing excisting sheets
             for w in sheets:  # check if we have worksheet in the list
-                if w == self.file_name or w == 'Sheet':
+                if w == sheet_date or w == 'Sheet':
                     wb.remove(wb[w])  # Remove worksheet from this workbook
                     wb.save(full_file_name)  # Save the results
-            worksheet = self.file_name
+            worksheet = sheet_date
             wb.create_sheet(title=worksheet, index=0)  # Creating a worksheet
             sheet = wb[worksheet] # Opening a worksheet
             headers = self.car_columns  #
@@ -390,7 +392,6 @@ class Cars:
         # all rows:
         # pandas.options.display.max_rows
         print(df)
-        print(date.today())
 
     def save_to_db(self):
         ...
