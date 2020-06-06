@@ -234,7 +234,7 @@ class Cars:
         self.car_description['Id'] = self.car_id
         """ Adding a dictionary to a big list (declared in __init__) """
         self.car_catalogue.append(self.car_description)
-        """ Adding a recored into Database """
+        """ Adding a record into Database """
         with Storage() as cursor:
             try:
                 cursor.execute(self.insert_date,
