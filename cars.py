@@ -44,6 +44,8 @@ class Cars:
         Id)  
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
         );"""
+        self.update_car = """UPDATE cars SET
+        Price = ? WHERE Id = ?;"""
         self.insert_date = """INSERT INTO price_watch (
         H_Date,
         H_Price,
@@ -249,7 +251,10 @@ class Cars:
                 previous_price = cursor.fetchone()
                 print("Old Price: " + ''.join(previous_price))
                 print("Current Price: " + self.car_description['Price'])
-                print("Price difference: " + str(int(''.join(previous_price).replace('£', '')) - int(self.car_description['Price'].replace('£', ''))))
+                price_difference = int(''.join(previous_price).replace('£', '')) - int(self.car_description['Price'].replace('£', ''))
+                print("Price difference: " + str(price_difference))
+                if price_difference != 0:
+                    cursor.execute(self.update_car, (self.car_description['Price'], self.car_description['Id']))
                 """ TODO: create a table for price traking """
                 cursor.execute(self.price_select, (self.car_description['Id'],))
                 result = cursor.fetchall()
@@ -304,7 +309,6 @@ class Cars:
             [ sheet.append(list(data.values())) for data in self.car_catalogue ]
             wb.save(full_file_name)
         except KeyError as e:
-
             print("Worksheet {worksheet} does not exist.".format(worksheet=worksheet))
 
     def save_to_excel2(self):
