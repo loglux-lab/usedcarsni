@@ -164,10 +164,8 @@ class Cars:
             [ self.car_tax.append(x.strip()) for x in self.car_t ]
             if self.car_tax == []:
                 self.car_tax = ['Foo']
-
         else:
             self.car_tax = ['N/A']
-
         if self.tree.xpath("//div[@class='technical-headers'][contains(., 'Insurance')]"):
             self.car_ins = self.tree.xpath(
                 "//div[@class='technical-headers'][contains(., 'Insurance')]/following-sibling::div/a[1]/text()")
@@ -242,16 +240,11 @@ class Cars:
                 cursor.execute(self.insert_date,
                                (self.current_date, self.car_description['Price'], self.car_description['Id']))
                 cursor.execute(self.insert_car, list(self.car_description.values()))
-                #cursor.executescript((self.insert_car + self.insert_date))
-                #print(cursor.lastrowid)
             except sqlite3.IntegrityError:
                 """ TODO: Search Results Web results SQLite IntegrityError: UNIQUE constraint failed:"""
                 """ Checkig a previous price and comparsion with a current one """
                 #row_check = f"SELECT Price from cars WHERE Id = {self.car_description['Id']}"
                 """ How to make a comparison and save a result. """
-                #cursor.execute(row_check)
-                #tulpe_id = (self.car_description['Id'],)
-                #print(tulpe_id)
                 cursor.execute(self.row_check, (self.car_description['Id'],))
                 previous_price = cursor.fetchone()
                 print("Old Price: " + ''.join(previous_price))
@@ -261,9 +254,6 @@ class Cars:
                 cursor.execute(self.price_select, (self.car_description['Id'],))
                 result = cursor.fetchall()
                 print(result)
-
-                #cursor.execute(self.insert_date, date.today(), self.car_description['Price'], cursor.lastrowid)
-
         """ Creating a title for saving in csv/excel tables"""
         self.car_columns = list(self.car_catalogue[0].keys())
         print(self.car_description)
