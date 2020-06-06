@@ -384,14 +384,6 @@ class Cars:
     def save_to_db(self):
         ...
 
-
-
-# Virtualenv location: /root/.local/share/virtualenvs/oil-TJy-gOFN
-#Synergy. When you move your cursor outside the current screen it automatically goes to the next one on another computer.
-#https://symless.com/synergy/features
-#Microsoft Garage Mouse without Borders
-#https://www.microsoft.com/en-us/download/details.aspx?id=35460
-
 if __name__ == '__main__':
     #search_url = str(input("Search URL: "))
     #file_name = str(input("File name: "))
