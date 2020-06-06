@@ -13,5 +13,7 @@ motor.start()
 motor.results()
 motor.save_to_excel()
 motor.pd_table()
+motor.save_to_db()
+
 
 

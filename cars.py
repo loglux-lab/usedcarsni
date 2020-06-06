@@ -236,7 +236,7 @@ class Cars:
         self.car_description['Id'] = self.car_id
         """ Adding a dictionary to a big list (declared in __init__) """
         self.car_catalogue.append(self.car_description)
-        """ Adding a record into Database """
+        """ START. Adding a record into Database """
         with Storage() as cursor:
             try:
                 cursor.execute(self.insert_date,
@@ -259,6 +259,7 @@ class Cars:
                 cursor.execute(self.price_select, (self.car_description['Id'],))
                 result = cursor.fetchall()
                 print(result)
+                """ END Database"""
         """ Creating a title for saving in csv/excel tables"""
         self.car_columns = list(self.car_catalogue[0].keys())
         print(self.car_description)
@@ -386,7 +387,31 @@ class Cars:
         print(df)
 
     def save_to_db(self):
-        ...
+        fresh = []
+        for x in self.car_catalogue:
+            fresh.append(x['Id'].replace(',', ''))
+        sql_id = """ SELECT Id FROM cars """
+        sql_diff = """ SELECT * FROM cars WHERE Id = ?"""
+        with Storage() as cursor:
+            cursor.execute(sql_id)
+            old = cursor.fetchall()
+            # Res = [x for x in Ans if x in Word]
+            # https://ru.stackoverflow.com/questions/427942/%D0%A1%D1%80%D0%B0%D0%B2%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5-2-%D1%83%D1%85-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%BE%D0%B2-%D0%B2-python/427949
+            old_one = [ item for t in old for item in t]
+            fresh_one = []
+            for i in fresh:
+                i = int(i)
+                fresh_one.append(i)
+            id_diff = list(set(old_one) - set(fresh_one))
+            inv_diff = list(set(fresh_one) - set(old_one))
+            print(id_diff)
+            print("Inversion: " + str(inv_diff))
+            cursor.execute(sql_diff, id_diff)
+            dropped_cars = cursor.fetchall()
+            print(dropped_cars)
+
+
+
 
 if __name__ == '__main__':
     #search_url = str(input("Search URL: "))
@@ -404,4 +429,5 @@ if __name__ == '__main__':
     motor.save_to_excel()
     #motor.print_table()
     motor.pd_table()
+
 
