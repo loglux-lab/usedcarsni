@@ -52,7 +52,7 @@ class Cars:
         Id)
         VALUES (?, ?, ?);
          """
-        self.price_select = """SELECT DISTINCT date(H_Date), H_Price, Id 
+        self.price_select = """SELECT DISTINCT H_Date, H_Price, Id 
         FROM price_watch WHERE Id= ?
         AND 
         date(H_date) = (SELECT MAX(date(H_Date)) FROM price_watch)"""
@@ -258,7 +258,12 @@ class Cars:
                 """ TODO: create a table for price traking """
                 cursor.execute(self.price_select, (self.car_description['Id'],))
                 result = cursor.fetchall()
+                """ To get a dictionary from the request """
+                data = dict(zip([c[0] for c in cursor.description], result[0]))
+                print(data)
+                print(type(result))
                 print(result)
+
                 """ END Database"""
         """ Creating a title for saving in csv/excel tables"""
         self.car_columns = list(self.car_catalogue[0].keys())
