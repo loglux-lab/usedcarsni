@@ -389,8 +389,12 @@ class Cars:
             print(dropped_cars)
 
     def db_operations(self):
+        """ TODO: Move all queries to __init__ or even create a new calss or move everythng to the class Storage """
+        """ TODO: Create prices monitoring """
+        cars = []
+        [cars.append(tuple(car.values())) for car in self.car_catalogue]
         with Storage() as cursor:
-            select_table = """SELECT Price, Id from cars """
+            select_table = """SELECT * from cars """
             try:
                 """ Open cars """
                 cursor.execute(select_table)
@@ -400,22 +404,62 @@ class Cars:
                 """ Create a new tables: cars and price_watch """
                 Operations().create_tables()
                 """ Insert Data into cars """
-                cars = []
-                [ cars.append(tuple(car.values())) for car in self.car_catalogue ]
+                #cars = []
+                #[ cars.append(tuple(car.values())) for car in self.car_catalogue ]
                 cursor.executemany(self.insert_car, cars)
-            """ Check New, Deleted and Prices """
-            """ list( set(A) - set(B) ) and vice versa """
-            fresh_id = []
-            [ fresh_id.append(car['Id']) for car in self.car_catalogue ]
-            previous_id = []
-            [ previous_id.append(car[1]) for car in previous_data ]
-
-
-
-
+            else:
+                """ Check New, Deleted and Prices """
+                """ list( set(A) - set(B) ) and vice versa """
+                fresh_id = []
+                [ fresh_id.append(car['Id']) for car in self.car_catalogue ]
+                print("fresh id: " + str(fresh_id))
+                previous_id = []
+                [ previous_id.append(car[15]) for car in previous_data ]
+                print("previous id: " + str(previous_id))
+                """ Deleted """
+                removed_id = (list(set(previous_id) - set(fresh_id)))
+                print("removed id 1: " + str(removed_id))
+                if removed_id:
+                    self.insert_old = """INSERT INTO old (
+                            Make, 
+                            Model, 
+                            Trim, 
+                            Year, 
+                            Price, 
+                            Mileage, 
+                            Engine, 
+                            Fuel, 
+                            Transmission, 
+                            Tax, 
+                            Insurance, 
+                            MPG, 
+                            KM, 
+                            Acceleration, 
+                            Link, 
+                            Id)  
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
+                            );"""
+                    self.sql_del = """DELETE FROM cars WHERE id = ?;"""
+                    del_cars = []
+                    [del_cars.append(car) for car in previous_data if car[15] in removed_id ]
+                    print("previous data")
+                    print("removed id:" + str(type(removed_id)) + " " + str(removed_id))
+                    cursor.executemany(self.insert_old, del_cars)
+                    [cursor.execute(self.sql_del, (id,)) for id in removed_id]
+                print("Removed id: " + str(removed_id))
+                """ New """
+                new_id = (list( set(fresh_id) - set(previous_id)) )
+                print("New id: " + str(new_id))
+                if new_id:
+                    new_cars = []
+                    [ new_cars.append(car) for car in cars if car[15] in new_id ]
+                    cursor.executemany(self.insert_car, new_cars)
+                    print("New id: " + str(new_id))
+                    print(new_cars)
 
 
 if __name__ == '__main__':
+    all_renault2016 = "https://www.usedcarsni.com/search_results.php?keywords=&make=24&model=1170&fuel_type=0&trans_type=0&age_from=2016&age_to=0&price_from=0&price_to=0&user_type=0&mileage_to=0&body_style=12&doors%5B%5D=5&keywords=&distance_enabled=0&distance_postcode=&homepage_search_attr=1&tab_id=0&search_type=1"
     #search_url = str(input("Search URL: "))
     #file_name = str(input("File name: "))
     #if not search_url and not file_name:
@@ -427,6 +471,7 @@ if __name__ == '__main__':
     motor.start()
     motor.results()
     motor.db_operations()
+    motor.pd_table()
 
 
 """    motor.save_to_csv()
