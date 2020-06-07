@@ -46,7 +46,7 @@ class Cars:
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
         );"""
         self.update_car = """UPDATE cars SET
-        Price = ? WHERE Id = ?;"""
+        Price = ? WHERE Id IN (*);"""
         self.insert_date = """INSERT INTO price_watch (
         H_Date,
         H_Price,
@@ -57,7 +57,7 @@ class Cars:
         FROM price_watch WHERE Id= ?
         AND 
         date(H_date) = (SELECT MAX(date(H_Date)) FROM price_watch)"""
-        self.row_check = """SELECT Price from cars WHERE Id = ?"""
+        self.row_check = """SELECT Price from cars WHERE id IN ({})"""
 
 
     def start(self):
@@ -442,8 +442,6 @@ class Cars:
                     self.sql_del = """DELETE FROM cars WHERE id = ?;"""
                     del_cars = []
                     [del_cars.append(car) for car in previous_data if car[15] in removed_id ]
-                    print("previous data")
-                    print("removed id:" + str(type(removed_id)) + " " + str(removed_id))
                     cursor.executemany(self.insert_old, del_cars)
                     [cursor.execute(self.sql_del, (id,)) for id in removed_id]
                 print("Removed id: " + str(removed_id))
@@ -456,6 +454,15 @@ class Cars:
                     cursor.executemany(self.insert_car, new_cars)
                     print("New id: " + str(new_id))
                     print(new_cars)
+                """ Checking prices here ? """
+                car_prices = []
+                [ car_prices.append(car) for car in self.car_catalogue if car['Id'] not in removed_id or new_id ]
+                """ Actual data: """
+                car_id = (tuple( set(previous_id) - set(removed_id)))
+                car_data = "?, " * len(car_id)
+                car_data = car_data.rstrip(', ')
+                cursor.execute(self.row_check.format(car_data) , car_id)
+                print(car_prices)
 
 
 if __name__ == '__main__':
