@@ -418,7 +418,7 @@ class Cars:
                 print("previous id: " + str(previous_id))
                 """ Deleted """
                 removed_id = (list(set(previous_id) - set(fresh_id)))
-                print("removed id 1: " + str(removed_id))
+                print("removed id : " + str(removed_id))
                 if removed_id:
                     self.insert_old = """INSERT INTO old (
                             Make, 
@@ -440,11 +440,17 @@ class Cars:
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
                             );"""
                     self.sql_del = """DELETE FROM cars WHERE id = ?;"""
+                    """ removing deleted """
+                    self.all_dell = """DELETE FROM cars WHERE id IN ({})""" # a better version
                     del_cars = []
                     [del_cars.append(car) for car in previous_data if car[15] in removed_id ]
                     cursor.executemany(self.insert_old, del_cars)
-                    [cursor.execute(self.sql_del, (id,)) for id in removed_id]
-                print("Removed id: " + str(removed_id))
+                    """ delete removed cars: """
+                    car_rm = "?, " * len(removed_id)
+                    car_rm = car_rm.rstrip(', ')
+                    cursor.execute(self.all_dell.format(car_rm), removed_id)
+                    """ A previous version of this request: """
+                    #[cursor.execute(self.sql_del, (id,)) for id in removed_id]
                 """ New """
                 new_id = (list( set(fresh_id) - set(previous_id)) )
                 print("New id: " + str(new_id))
@@ -463,6 +469,7 @@ class Cars:
                 car_data = car_data.rstrip(', ')
                 cursor.execute(self.row_check.format(car_data) , car_id)
                 print(car_prices)
+                """ Comparison here """
 
 
 if __name__ == '__main__':
