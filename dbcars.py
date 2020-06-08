@@ -26,27 +26,11 @@ class Cars:
         self.session = requests.Session()
         self.current_date = date.today()
         self.connect()
-        self.insert_car =   """INSERT INTO cars (
-        Make, 
-        Model, 
-        Trim, 
-        Year, 
-        Price, 
-        Mileage, 
-        Engine, 
-        Fuel, 
-        Transmission, 
-        Tax, 
-        Insurance, 
-        MPG, 
-        KM, 
-        Acceleration, 
-        Link, 
-        Id)  
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
-        );"""
+        self.insert_car = """INSERT INTO {}  {}  VALUES ( {} );"""
+        self.all_del = """DELETE FROM {} WHERE id IN ({})"""
+        self.select_table = """SELECT * from {} """
         self.update_car = """UPDATE cars SET
-        Price = ? WHERE Id IN (*);"""
+        Price = ? WHERE Id IN ({});"""
         self.insert_date = """INSERT INTO price_watch (
         H_Date,
         H_Price,
@@ -394,19 +378,18 @@ class Cars:
         cars = []
         [cars.append(tuple(car.values())) for car in self.car_catalogue]
         with Storage() as cursor:
-            select_table = """SELECT * from cars """
             try:
                 """ Open cars """
-                cursor.execute(select_table)
+                cursor.execute(self.select_table.format("cars"))
                 previous_data = cursor.fetchall()
                 """ if it doesn't exist """
             except sqlite3.OperationalError:
                 """ Create a new tables: cars and price_watch """
                 Operations().create_tables()
                 """ Insert Data into cars """
-                #cars = []
-                #[ cars.append(tuple(car.values())) for car in self.car_catalogue ]
-                cursor.executemany(self.insert_car, cars)
+                self.car_values = len(self.car_columns) * "?, "
+                self.car_values = self.car_values.rstrip(', ')
+                cursor.executemany(self.insert_car.format("cars", tuple(self.car_columns), self.car_values), cars)
             else:
                 """ Check New, Deleted and Prices """
                 """ list( set(A) - set(B) ) and vice versa """
@@ -420,37 +403,14 @@ class Cars:
                 removed_id = (list(set(previous_id) - set(fresh_id)))
                 print("removed id : " + str(removed_id))
                 if removed_id:
-                    self.insert_old = """INSERT INTO old (
-                            Make, 
-                            Model, 
-                            Trim, 
-                            Year, 
-                            Price, 
-                            Mileage, 
-                            Engine, 
-                            Fuel, 
-                            Transmission, 
-                            Tax, 
-                            Insurance, 
-                            MPG, 
-                            KM, 
-                            Acceleration, 
-                            Link, 
-                            Id)  
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?  
-                            );"""
-                    self.sql_del = """DELETE FROM cars WHERE id = ?;"""
                     """ removing deleted """
-                    self.all_dell = """DELETE FROM cars WHERE id IN ({})""" # a better version
                     del_cars = []
                     [del_cars.append(car) for car in previous_data if car[15] in removed_id ]
-                    cursor.executemany(self.insert_old, del_cars)
+                    cursor.executemany(self.insert_car.format("old", tuple(self.car_columns), self.car_values), del_cars)
                     """ delete removed cars: """
                     car_rm = "?, " * len(removed_id)
                     car_rm = car_rm.rstrip(', ')
-                    cursor.execute(self.all_dell.format(car_rm), removed_id)
-                    """ A previous version of this request: """
-                    #[cursor.execute(self.sql_del, (id,)) for id in removed_id]
+                    cursor.execute(self.all_del.format("cars", car_rm), removed_id)
                 """ New """
                 new_id = (list( set(fresh_id) - set(previous_id)) )
                 print("New id: " + str(new_id))
@@ -486,6 +446,7 @@ if __name__ == '__main__':
     motor.results()
     motor.db_operations()
     motor.pd_table()
+    motor.save_to_excel()
 
 
 """    motor.save_to_csv()
