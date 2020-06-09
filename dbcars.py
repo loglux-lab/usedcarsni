@@ -26,6 +26,7 @@ class Cars:
         self.session = requests.Session()
         self.current_date = date.today()
         self.connect()
+        self.car_values = ''
         self.insert_car = """INSERT INTO {}  {}  VALUES ( {} );"""
         self.all_del = """DELETE FROM {} WHERE id IN ({})"""
         self.select_table = """SELECT * from {} """
@@ -375,6 +376,9 @@ class Cars:
     def db_operations(self):
         """ TODO: Move all queries to __init__ or even create a new calss or move everythng to the class Storage """
         """ TODO: Create prices monitoring """
+        self.car_values = len(self.car_columns) * "?, "
+        self.car_values = self.car_values.rstrip(', ')
+        """ Creating a list of lists of values """
         cars = []
         [cars.append(tuple(car.values())) for car in self.car_catalogue]
         with Storage() as cursor:
@@ -387,8 +391,6 @@ class Cars:
                 """ Create a new tables: cars and price_watch """
                 Operations().create_tables()
                 """ Insert Data into cars """
-                self.car_values = len(self.car_columns) * "?, "
-                self.car_values = self.car_values.rstrip(', ')
                 cursor.executemany(self.insert_car.format("cars", tuple(self.car_columns), self.car_values), cars)
             else:
                 """ Check New, Deleted and Prices """
@@ -417,9 +419,9 @@ class Cars:
                 if new_id:
                     new_cars = []
                     [ new_cars.append(car) for car in cars if car[15] in new_id ]
-                    cursor.executemany(self.insert_car, new_cars)
-                    print("New id: " + str(new_id))
                     print(new_cars)
+                    print("New id: " + str(new_id))
+                    cursor.executemany(self.insert_car.format("cars", tuple(self.car_columns), self.car_values), new_cars)
                 """ Checking prices here ? """
                 car_prices = []
                 [ car_prices.append(car) for car in self.car_catalogue if car['Id'] not in removed_id or new_id ]
@@ -446,7 +448,7 @@ if __name__ == '__main__':
     motor.results()
     motor.db_operations()
     motor.pd_table()
-    motor.save_to_excel()
+    #motor.save_to_excel()
 
 
 """    motor.save_to_csv()
