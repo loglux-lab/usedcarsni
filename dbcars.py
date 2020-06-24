@@ -256,15 +256,16 @@ class Cars:
         from openpyxl import load_workbook
         sheet_date = str(self.current_date)
         full_file_name = self.file_name + '.xlsx'
+        sheet_name = sheet_date + " - " + str(self.car_catalogue[0]['Make'])  + " - " + str(self.car_catalogue[0]['Model'])
         try:
             wb = load_workbook(full_file_name)
             sheets = wb.sheetnames  # Returns a worksheets by its names
             print(f"The file has sheets: {sheets}") # Printing excisting sheets
             for w in sheets:  # check if we have worksheet in the list
-                if w == sheet_date or w == 'Sheet':
+                if w == sheet_name or w == 'Sheet':
                     wb.remove(wb[w])  # Remove worksheet from this workbook
                     wb.save(full_file_name)  # Save the results
-            worksheet = sheet_date
+            worksheet = sheet_name
             wb.create_sheet(title=worksheet, index=0)  # Creating a worksheet
             sheet = wb[worksheet] # Opening a worksheet
             headers = self.car_columns  #
@@ -430,7 +431,7 @@ class Cars:
                 car_data = "?, " * len(car_id)
                 car_data = car_data.rstrip(', ')
                 cursor.execute(self.row_check.format(car_data) , car_id)
-                print(car_prices)
+                #(car_prices)
                 """ Comparison here """
 
 
@@ -440,6 +441,8 @@ if __name__ == '__main__':
     #file_name = str(input("File name: "))
     #if not search_url and not file_name:
     search_url = "https://www.usedcarsni.com/search_results.php?search_type=1&make=24&fuel_type=2&age_from=2016&price_from=0&user_type=2%7C4&model=1170&trans_type=0&age_to=0&price_to=0&mileage_to=0&keywords=&distance_enabled=1&distance_postcode=&body_style=12&doors%5B%5D=5"
+    hyundai10 = "https://www.usedcarsni.com/search_results.php?search_type=1&make=9&fuel_type=0&age_from=0&price_from=0&user_type=0&model=17036939&trans_type=0&age_to=0&price_to=0&mileage_to=0&keywords=&distance_enabled=1&distance_postcode=&body_style=0"
+    hyundaii20 = "https://www.usedcarsni.com/search_results.php?search_type=1&make=9&fuel_type=0&age_from=0&price_from=0&user_type=2%7C4&model=17375267&trans_type=0&age_to=0&price_to=0&mileage_to=0&keywords=&distance_enabled=1&distance_postcode=&body_style=0"
     motor = Cars(search_url)
     #motor.connect()
     #motor.check
@@ -448,7 +451,7 @@ if __name__ == '__main__':
     motor.results()
     motor.db_operations()
     motor.pd_table()
-    #motor.save_to_excel()
+    motor.save_to_excel()
 
 
 """    motor.save_to_csv()
