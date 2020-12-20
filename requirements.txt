@@ -1,4 +1,4 @@
 openpyxl
-requests==2.22.0
-keyring==21.0.0
-lxml==4.4.2
+requests
+keyring
+lxml
